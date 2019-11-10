@@ -1,6 +1,18 @@
 package com.flinect.todoapp
 
 import org.jetbrains.exposed.sql.Database
+import org.koin.core.KoinComponent
+import org.koin.core.context.startKoin
+import org.koin.core.inject
+import org.koin.dsl.module
+
+class Application : KoinComponent {
+    private val server by inject<Server>()
+
+    fun run() {
+        server.run(8001)
+    }
+}
 
 fun main() {
     Database.connect(
@@ -10,33 +22,15 @@ fun main() {
         password = ""
     )
 
-    val taskRepository = TaskRepositoryImpl()
-    taskRepository.setUp()
+    val todoModule = module {
+        single { TaskRepositoryImpl() as TaskRepository }
+        single { TaskService(get()) }
+        single(createdAtStart = true) { Server(get()) }
+    }
 
-    val taskService = TaskService(taskRepository)
+    startKoin {
+        modules(todoModule)
+    }
 
-    val server = Server(taskService)
-
-    server.run(8001)
-
-//    val snowflake = Snowflake(1, 1)
-//
-//    transaction {
-//        addLogger(StdOutSqlLogger)
-//
-//        SchemaUtils.createMissingTablesAndColumns(com.flinect.todoapp.TaskTable)
-//
-//        for (i in 1..100) {
-//            println(snowflake.nextId().toString())
-////            com.flinect.todoapp.TaskTable.insert {
-////                it[id] = snowflake.nextId().toString()
-////                it[description] = "Task #$i"
-////            }
-//        }
-//        for (row in com.flinect.todoapp.TaskTable.selectAll()) {
-//            val task = com.flinect.todoapp.TaskTable.rowToRecord(row)
-//
-//            println(task)
-//        }
-//    }
+    Application().run()
 }

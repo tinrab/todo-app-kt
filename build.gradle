@@ -18,6 +18,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     compile "org.slf4j:slf4j-simple:1.7.28"
+    compile 'org.koin:koin-core:2.0.1'
     compile "org.jetbrains.exposed:exposed:0.17.7"
     compile "org.postgresql:postgresql:42.2.2"
     compile "xyz.downgoon:snowflake:1.0.0"
